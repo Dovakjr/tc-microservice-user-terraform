@@ -36,21 +36,19 @@ jobs:
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve -input=false
         env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS}}
-  kubernetes-provisions:
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@master
+      - uses: actions/checkout@master
 
-      # Setup gcloud CLI
-      - uses: google-github-actions/setup-gcloud@1bee7de035d65ec5da40a31f8589e240eba8fde5
+      - name: kubectl - Google Cloud GKE cluster.
+        uses: ameydev/gke-kubectl-action@master
+        env:
+          PROJECT_ID: techchallenge-fastfood
+          APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS_BASE64 }}
+          CLUSTER_NAME: tc-microservice-user-cluster
+          ZONE_NAME: us-east1
         with:
-          service_account_key: ${{ secrets.GOOGLE_CREDENTIALS}}
-          project_id: techchallenge-fastfood
-
-      # Configure Docker to use the gcloud command-line tool as a credential
-      # helper for authentication
-      - run: |-
-          gcloud --quiet auth configure-docker
+          args: apply -f packaging/k8s/manifests/ -n staging
