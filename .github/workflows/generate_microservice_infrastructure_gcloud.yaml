@@ -3,13 +3,14 @@ name: CI/CD with Terraform and GKE (GCloud)
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   terraform:
-    runs-on: ubuntu-latest
+    runs-on:
+      ubuntu-latest
 
-     # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
+      # Use the Bash shell regardless whether the GitHub Actions runner is ubuntu-latest, macos-latest, or windows-latest
     defaults:
       run:
         shell: bash
@@ -24,7 +25,7 @@ jobs:
       - name: Terraform Init
         run: terraform init
         env:
-          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }} 
+          GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
 
       - name: Terraform Plan
         run: terraform plan -input=false
@@ -36,3 +37,18 @@ jobs:
         run: terraform apply -auto-approve -input=false
         env:
           GOOGLE_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@master
+
+      - name: kubectl - Google Cloud GKE cluster.
+        uses: ameydev/gke-kubectl-action@v1.02
+        env:
+          APPLICATION_CREDENTIALS: ${{ secrets.GOOGLE_CREDENTIALS }}
+          PROJECT_ID: techchallenge-fastfood
+          CLUSTER_NAME: tc-microservice-user-cluster
+          ZONE_NAME: us-east
+        with:
+          args: apply -f https://github.com/Dovakjr/k8s_terraform_tech_challenge/blob/main/app.k8sConfig.yaml
