@@ -15,7 +15,7 @@ provider "google" {
 }
 
 module "gke" {
-  name               = "techchallenge-cluster"
+  name               = "tc-microservice-user-cluster"
   source             = "terraform-google-modules/kubernetes-engine/google"
   project_id         = "techchallenge-fastfood"
   network            = "default"
