@@ -25,6 +25,7 @@ module "gke" {
   ip_range_pods      = ""
   ip_range_services  = ""
   region             = "us-east1-b"
+  zones  = ["us-east1-b"]
 }
 
 resource "null_resource" "gke_update_kubeconfig" {
